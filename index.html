@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruleta del Cuchubal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: feria de pueblo — encabezado amarillo con banderines, tarjetas tipo "sticker" con borde grueso y sombra sólida, pasos 1-2-3, ruleta con foquitos y confeti al final */
+:root {
+  --bg:      #fff1d6;
+  --surface: #ffffff;
+  --sunk:    #fff7e8;
+  --ink:     #2b1640;
+  --muted:   #6e5a80;
+  --edge:    #2b1640;
+  --sun:     #ffc93c;
+  --on-sun:  #2b1640;
+  --pink:    #ff4f8b;
+  --teal:    #17b3a3;
+  --orange:  #ff8a3d;
+  --violet:  #7b5cff;
+  --ok-bg:   #d7f6e6; --ok-fg: #126b43;
+  --warn-bg: #ffe9c2; --warn-fg: #8a4b00;
+  --dot:     rgba(255,79,139,.16);
+  --f-display: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;
+  --f-body:    'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r: 20px; --r-sm: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#1c1330; --surface:#2a1e46; --sunk:#22183b; --ink:#fff1db; --muted:#c2b0d8; --edge:#0b0616;
+    --pink:#ff6b9d; --teal:#36d3c3; --orange:#ff9d5c; --violet:#9d85ff;
+    --ok-bg:#173f2e; --ok-fg:#8eeabd; --warn-bg:#46300f; --warn-fg:#ffd27a;
+    --dot: rgba(255,201,60,.10);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#1c1330; --surface:#2a1e46; --sunk:#22183b; --ink:#fff1db; --muted:#c2b0d8; --edge:#0b0616;
+  --pink:#ff6b9d; --teal:#36d3c3; --orange:#ff9d5c; --violet:#9d85ff;
+  --ok-bg:#173f2e; --ok-fg:#8eeabd; --warn-bg:#46300f; --warn-fg:#ffd27a;
+  --dot: rgba(255,201,60,.10);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 2px, transparent 2.5px);
+  background-size: 26px 26px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; padding-block: 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+
+/* ── Encabezado con banderines ── */
+header {
+  position: relative;
+  background: var(--sun);
+  color: var(--on-sun);
+  border: 3px solid var(--edge);
+  border-radius: var(--r);
+  box-shadow: 6px 6px 0 var(--edge);
+  padding: 46px 24px 26px;
+  overflow: hidden;
+}
+header::after {
+  content: ''; position: absolute; right: -40px; bottom: -60px; width: 220px; height: 220px; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.35) 0 10deg, transparent 10deg 20deg);
+  pointer-events: none;
+}
+.bunting { position: absolute; top: 0; left: 0; right: 0; height: 30px; display: flex; justify-content: space-between; padding: 0 6px; }
+.bunting::before { content: ''; position: absolute; top: 4px; left: 0; right: 0; height: 2px; background: var(--on-sun); opacity: .5; }
+.bunting i { width: 24px; height: 28px; margin-top: 4px; clip-path: polygon(0 0, 100% 0, 50% 100%); flex: none; transform-origin: top center; animation: flutter 2.6s ease-in-out infinite alternate; }
+.bunting i:nth-child(5n+1) { background: var(--pink); }
+.bunting i:nth-child(5n+2) { background: #17b3a3; }
+.bunting i:nth-child(5n+3) { background: #7b5cff; }
+.bunting i:nth-child(5n+4) { background: #ff8a3d; }
+.bunting i:nth-child(5n+5) { background: #ffffff; }
+.bunting i:nth-child(odd) { animation-delay: -1.3s; }
+@keyframes flutter { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+
+.head-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+.eyebrow { align-self: flex-start; font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; background: var(--on-sun); color: var(--sun); padding: 3px 12px; border-radius: 99px; transform: rotate(-2deg); }
+h1 {
+  font-family: var(--f-display); font-weight: 700; margin: 0;
+  font-size: clamp(38px, 10vw, 66px); line-height: .98; letter-spacing: -.01em; text-wrap: balance;
+  color: #ffffff;
+  -webkit-text-stroke: 2px var(--on-sun);
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 var(--pink);
+  overflow-wrap: anywhere;
+}
+.lede { margin: 2px 0 0; font-weight: 700; max-width: 52ch; }
+.coins { display: flex; gap: 6px; margin-top: 6px; }
+.coin { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #f2b200 60%, #c98a00); border: 2px solid var(--on-sun); display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: 14px; color: var(--on-sun); animation: hop 1.8s ease-in-out infinite; }
+.coin:nth-child(2) { animation-delay: .2s; } .coin:nth-child(3) { animation-delay: .4s; } .coin:nth-child(4) { animation-delay: .6s; }
+@keyframes hop { 0%, 70%, 100% { transform: translateY(0); } 80% { transform: translateY(-7px); } }
+
+/* ── Tarjetas tipo sticker ── */
+.card {
+  background: var(--surface);
+  border: 3px solid var(--edge);
+  border-radius: var(--r);
+  box-shadow: 6px 6px 0 var(--edge);
+  padding: 22px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.step-head { display: flex; align-items: center; gap: 12px; }
+.step { width: 38px; height: 38px; flex: none; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: 20px; color: #fff; border: 3px solid var(--edge); }
+.step.s1 { background: var(--teal); } .step.s2 { background: var(--pink); } .step.s3 { background: var(--violet); }
+.card h2 { font-family: var(--f-display); font-weight: 600; font-size: 23px; margin: 0; line-height: 1.15; }
+.hint { font-size: 13.5px; color: var(--muted); margin: -6px 0 0; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label { font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+input[type=text], input[type=number], select, textarea {
+  width: 100%; font: inherit; font-weight: 700; color: var(--ink); background: var(--sunk);
+  border: 2.5px solid var(--edge); border-radius: var(--r-sm); padding: 10px 12px; outline: none;
+  transition: box-shadow .15s;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible { box-shadow: 0 0 0 4px var(--sun); }
+textarea { min-height: 230px; resize: vertical; line-height: 1.9; font-weight: 600; }
+textarea::placeholder, input::placeholder { color: var(--muted); opacity: .7; }
+
+/* Interruptor */
+.toggle { align-self: flex-start; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; font-weight: 800; font-size: 15px; }
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch { width: 50px; height: 28px; border-radius: 99px; background: var(--sunk); border: 2.5px solid var(--edge); position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: var(--edge); transition: transform .2s, background .2s; }
+.toggle input:checked + .switch { background: var(--teal); }
+.toggle input:checked + .switch::after { transform: translateX(22px); background: #fff; }
+.toggle input:focus-visible + .switch { box-shadow: 0 0 0 4px var(--sun); }
+.tag { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--on-sun); background: var(--sun); border: 2px solid var(--edge); border-radius: 99px; padding: 0 8px; }
+
+/* Contador */
+.status { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: var(--muted); font-weight: 700; }
+.status strong { color: var(--ink); font-family: var(--f-display); font-size: 18px; }
+.pill { padding: 4px 12px; border-radius: 99px; font-weight: 800; font-size: 13px; border: 2px solid currentColor; }
+.pill-neutral { background: var(--sunk); color: var(--muted); }
+.pill-warn { background: var(--warn-bg); color: var(--warn-fg); }
+.pill-ok { background: var(--ok-bg); color: var(--ok-fg); }
+.linkbtn { background: none; border: none; padding: 0; font: inherit; font-weight: 800; color: var(--pink); cursor: pointer; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.linkbtn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; border-radius: 4px; }
+
+/* Resumen en fichas de colores */
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.summary > div { border: 2.5px solid var(--edge); border-radius: var(--r-sm); padding: 10px 14px; display: flex; flex-direction: column; gap: 0; min-width: 0; color: #2b1640; }
+.summary > div:nth-child(4n+1) { background: #bff0e9; }
+.summary > div:nth-child(4n+2) { background: #ffd0e1; }
+.summary > div:nth-child(4n+3) { background: #ffe6a3; }
+.summary > div:nth-child(4n+4) { background: #ddd3ff; }
+.summary .v { font-family: var(--f-display); font-weight: 600; font-size: 20px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; line-height: 1.25; }
+.summary .k { font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+
+/* Botones con relieve */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--f-display); font-weight: 600; font-size: 16px;
+  border-radius: 99px; padding: 10px 20px; cursor: pointer; text-decoration: none;
+  border: 2.5px solid var(--edge); background: var(--surface); color: var(--ink);
+  box-shadow: 0 4px 0 var(--edge);
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--edge); }
+.btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--edge); }
+.btn:focus-visible { outline: 4px solid var(--sun); outline-offset: 2px; }
+.btn-pink { background: var(--pink); color: #fff; }
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-sun  { background: var(--sun); color: var(--on-sun); }
+.btn-big { width: 100%; padding: 16px; font-size: 24px; font-weight: 700; box-shadow: 0 7px 0 var(--edge); letter-spacing: .01em; }
+.btn-big:hover { box-shadow: 0 8px 0 var(--edge); }
+.btn-big:active { transform: translateY(7px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: 0 4px 0 var(--edge); }
+.btn-big:not(:disabled) { animation: nudge 2.4s ease-in-out infinite; }
+@keyframes nudge { 0%, 85%, 100% { transform: none; } 90% { transform: rotate(-1.2deg) scale(1.01); } 95% { transform: rotate(1.2deg) scale(1.01); } }
+
+/* ── Ruleta ── */
+.stage { align-items: center; text-align: center; background: var(--violet); color: #fff; }
+.stage h2 { color: #fff; }
+.wheel-box { position: relative; width: min(320px, 100%); aspect-ratio: 1; max-width: 100%; margin-top: 10px; }
+#wheel { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.pointer { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 17px solid transparent; border-right: 17px solid transparent; border-top: 30px solid var(--sun); filter: drop-shadow(0 3px 0 var(--edge)); z-index: 2; }
+.spin-name { font-family: var(--f-display); font-weight: 700; font-size: 30px; min-height: 40px; color: var(--sun); text-shadow: 2px 2px 0 var(--edge); }
+.spin-status { font-weight: 800; font-size: 15px; min-height: 22px; }
+.track { width: min(320px, 100%); height: 12px; background: rgba(255,255,255,.25); border: 2.5px solid var(--edge); border-radius: 99px; overflow: hidden; }
+.fill { height: 100%; width: 0; background: repeating-linear-gradient(-45deg, var(--sun) 0 10px, var(--orange) 10px 20px); }
+
+/* ── Resultados ── */
+.result-banner { background: var(--pink); color: #fff; border-radius: var(--r-sm); border: 2.5px solid var(--edge); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 4px; }
+.result-banner .eyebrow { background: #fff; color: var(--pink); }
+.result-banner h2 { font-size: clamp(26px, 6vw, 34px); font-weight: 700; color: #fff; text-shadow: 3px 3px 0 var(--edge); overflow-wrap: anywhere; }
+.result-banner p { margin: 0; font-weight: 700; font-size: 14px; opacity: .95; }
+
+.table-wrap { overflow-x: auto; border: 2.5px solid var(--edge); border-radius: var(--r-sm); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--on-sun); background: var(--sun); padding: 10px 14px; border-bottom: 2.5px solid var(--edge); white-space: nowrap; }
+td { padding: 10px 14px; border-bottom: 1.5px dashed color-mix(in srgb, var(--muted) 40%, transparent); vertical-align: middle; }
+tbody tr:nth-child(even) { background: var(--sunk); }
+tbody tr:last-child td { border-bottom: none; }
+td.turn { width: 64px; }
+.num { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-family: var(--f-display); font-weight: 700; color: #fff; border: 2px solid var(--edge); font-size: 15px; }
+tbody tr:nth-child(4n+1) .num { background: var(--teal); }
+tbody tr:nth-child(4n+2) .num { background: var(--pink); }
+tbody tr:nth-child(4n+3) .num { background: var(--orange); }
+tbody tr:nth-child(4n+4) .num { background: var(--violet); }
+td.mes { font-weight: 800; white-space: nowrap; }
+td.name { font-weight: 800; font-family: var(--f-display); font-size: 17px; }
+td.amt, th.amt { text-align: right; white-space: nowrap; }
+td.amt { font-weight: 800; color: var(--teal); }
+.first-badge { display: inline-block; margin-left: 8px; font-family: var(--f-body); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; background: var(--sun); color: var(--on-sun); border: 2px solid var(--edge); border-radius: 99px; padding: 0 8px; vertical-align: 2px; }
+@keyframes pop-in { from { opacity: 0; transform: scale(.9) translateY(6px); } to { opacity: 1; transform: none; } }
+tbody tr { animation: pop-in .35s cubic-bezier(.34,1.56,.64,1) both; }
+
+.note { background: var(--sunk); border: 2px dashed var(--muted); border-radius: var(--r-sm); padding: 14px 16px; font-size: 14px; color: var(--muted); font-weight: 600; display: flex; flex-direction: column; gap: 6px; }
+.dup-warn { background: var(--warn-bg); color: var(--warn-fg); border: 2px solid currentColor; border-radius: var(--r-sm); padding: 10px 14px; font-size: 14px; font-weight: 600; }
+.nojs-warn { background: var(--pink); color: #fff; border: 3px solid var(--edge); border-radius: var(--r-sm); padding: 14px 16px; font-weight: 700; font-size: 15px; display: flex; flex-direction: column; gap: 4px; }
+.note strong { color: var(--ink); }
+.note code { font-size: 12.5px; background: var(--surface); border: 1.5px solid var(--edge); padding: 1px 6px; border-radius: 6px; color: var(--ink); overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; padding-bottom: 4px; }
+#share-text { min-height: 160px; font-size: 13px; line-height: 1.6; }
+
+/* Modal + aviso */
+.modal-bg { position: fixed; inset: 0; background: rgba(20,10,35,.6); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal { background: var(--surface); border: 3px solid var(--edge); border-radius: var(--r); box-shadow: 6px 6px 0 var(--edge); padding: 24px; max-width: 390px; width: 100%; display: flex; flex-direction: column; gap: 12px; animation: pop-in .25s cubic-bezier(.34,1.56,.64,1); }
+.modal h3 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 23px; }
+.modal p { margin: 0; color: var(--muted); font-size: 14.5px; font-weight: 600; }
+.modal .actions { justify-content: flex-end; margin-top: 6px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(90px); opacity: 0; background: var(--sun); color: var(--on-sun); border: 2.5px solid var(--edge); box-shadow: 0 4px 0 var(--edge); padding: 10px 20px; border-radius: 16px; font-weight: 800; font-size: 14px; width: max-content; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s; z-index: 60; max-width: calc(100% - 32px); text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+
+footer { text-align: center; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@media print {
+  body { background: #fff; color: #000; }
+  #setup, #stage, .actions, footer, #share-box, .modal-bg, .toast, #confetti, header { display: none !important; }
+  .card { box-shadow: none; }
+}
+@media (max-width: 480px) {
+  .card { padding: 18px 16px; }
+  header { padding: 44px 18px 22px; }
+  .actions .btn { flex: 1 1 100%; }
+  .bunting i { width: 18px; height: 22px; }
+  td, th { padding: 9px 8px; }
+  td.turn { width: 40px; }
+  .num { width: 28px; height: 28px; font-size: 13px; }
+  td.name { font-size: 16px; }
+  .first-badge { display: table; margin: 2px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="nojs-warn" id="nojs-warn">
+    <strong>Esta vista no puede hacer funcionar la ruleta.</strong>
+    Estás viendo una vista previa que no ejecuta la página (pasa en la vista previa de archivos del iPhone). Ábrela con el enlace de la ruleta o en Safari o Chrome.
+  </div>
+
+  <header>
+    <div class="bunting" id="bunting" aria-hidden="true"></div>
+    <div class="head-inner">
+      <span class="eyebrow">Sorteo de turnos</span>
+      <h1 id="title-display">Cuchubal</h1>
+      <p class="lede">Anota a los participantes, elige el mes de inicio y deja que la ruleta decida a quién le toca recibir primero.</p>
+      <div class="coins" aria-hidden="true"><span class="coin">$</span><span class="coin">$</span><span class="coin">$</span><span class="coin">$</span></div>
+    </div>
+  </header>
+
+  <!-- CONFIGURACIÓN -->
+  <section id="setup" style="display:flex;flex-direction:column;gap:22px;">
+
+    <div class="card">
+      <div class="step-head"><span class="step s1">1</span><h2>Datos del cuchubal</h2></div>
+      <div class="grid">
+        <div class="field" style="grid-column: 1 / -1;">
+          <label for="group-name">Nombre del grupo</label>
+          <input type="text" id="group-name" placeholder="Ej.: Cuchubal de la oficina, Cuchubal de los primos…" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="start-month">Mes de inicio</label>
+          <select id="start-month"><option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option></select>
+        </div>
+        <div class="field">
+          <label for="start-year">Año</label>
+          <input type="number" id="start-year" min="2020" max="2100" step="1" inputmode="numeric">
+        </div>
+      </div>
+
+      <label class="toggle" for="use-amounts">
+        <input type="checkbox" id="use-amounts">
+        <span class="switch" aria-hidden="true"></span>
+        Incluir montos <span class="tag">opcional</span>
+      </label>
+
+      <div class="grid" id="amount-fields" hidden>
+        <div class="field">
+          <label for="cuota">Cuota mensual por persona</label>
+          <input type="number" id="cuota" min="0" step="0.01" inputmode="decimal" placeholder="50">
+        </div>
+        <div class="field">
+          <label for="symbol">Moneda</label>
+          <input type="text" id="symbol" maxlength="4" placeholder="$" value="$">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="step-head"><span class="step s2">2</span><h2>¿Quiénes participan?</h2></div>
+      <p class="hint">Un nombre por línea. Si alguien tiene dos números, escríbelo dos veces (por ejemplo «Ana (2)»).</p>
+      <textarea id="names" spellcheck="false" placeholder="Ana&#10;Carlos&#10;María&#10;José&#10;Sofía&#10;…"></textarea>
+      <div class="status">
+        <span><strong id="count">0</strong> participantes · <button type="button" class="linkbtn" id="load-example">probar con nombres de ejemplo</button></span>
+        <span class="pill pill-neutral" id="pill">Escribe al menos 2 nombres</span>
+      </div>
+      <div class="dup-warn" id="dup-warn" role="status" hidden></div>
+      <div class="summary" id="preview" hidden>
+        <div><span class="k">Empieza</span><span class="v" id="pv-start">—</span></div>
+        <div><span class="k">Termina</span><span class="v" id="pv-end">—</span></div>
+        <div><span class="k">Duración</span><span class="v" id="pv-dur">—</span></div>
+        <div id="pv-pot-box" hidden><span class="k">Recibe cada turno</span><span class="v" id="pv-pot">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="step-head"><span class="step s3">3</span><h2>¡A girar!</h2></div>
+      <button class="btn btn-pink btn-big" id="btn-spin" disabled>Girar la ruleta</button>
+    </div>
+  </section>
+
+  <!-- RULETA -->
+  <section id="stage" class="card stage" hidden>
+    <h2>¡La ruleta está girando!</h2>
+    <div class="wheel-box">
+      <canvas id="wheel" width="640" height="640"></canvas>
+      <div class="pointer" aria-hidden="true"></div>
+    </div>
+    <div class="spin-name" id="spin-name" aria-live="polite"></div>
+    <div class="spin-status" id="spin-status">Mezclando nombres…</div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section id="results" class="card" hidden>
+    <div class="result-banner">
+      <span class="eyebrow">¡Ya hay orden de entregas!</span>
+      <h2 id="res-title">Cuchubal</h2>
+      <p id="res-date">—</p>
+    </div>
+
+    <div class="summary" id="res-summary"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr id="res-thead"></tr></thead>
+        <tbody id="res-body"></tbody>
+      </table>
+    </div>
+
+    <div class="note" id="res-note"></div>
+
+    <div class="actions">
+      <button class="btn btn-sun" id="btn-copy">Copiar resultados</button>
+      <a class="btn btn-teal" id="btn-wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+      <button class="btn" id="btn-print" hidden>Imprimir</button>
+      <button class="btn" id="btn-new">Nuevo sorteo</button>
+    </div>
+
+    <div class="field" id="share-box" hidden>
+      <label for="share-text">Texto para compartir</label>
+      <textarea id="share-text" readonly></textarea>
+    </div>
+  </section>
+
+  <footer>El sorteo se hace en tu navegador con el método Fisher‑Yates. Nadie más ve tus datos.</footer>
+</div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h3 id="modal-title">¿Hacer un sorteo nuevo?</h3>
+    <p>Se borra el resultado actual. Los nombres y la configuración se quedan para que puedas volver a girar.</p>
+    <div class="actions">
+      <button class="btn" id="modal-cancel">Cancelar</button>
+      <button class="btn btn-pink" id="modal-ok">Sí, empezar de nuevo</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const WHEEL = ["#ff4f8b","#17b3a3","#ffc93c","#7b5cff","#ff8a3d","#2bb3e8","#e8458f","#8ccf3f"];
+const CONFETTI = ["#ff4f8b","#17b3a3","#ffc93c","#7b5cff","#ff8a3d","#ffffff"];
+const STORE = 'cuchubal-familiar-v1';
+const DEFAULT_NAME = 'Cuchubal';
+const $ = id => document.getElementById(id);
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ── Almacenamiento local (solo en este navegador) ──
+function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } }
+function save(patch) { try { localStorage.setItem(STORE, JSON.stringify({ ...load(), ...patch })); } catch {} }
+
+// ── Configuración ──
+function getConfig() {
+  const cuota = parseFloat($('cuota').value);
+  return {
+    group: $('group-name').value.trim() || DEFAULT_NAME,
+    month: parseInt($('start-month').value, 10),
+    year: parseInt($('start-year').value, 10) || new Date().getFullYear(),
+    useAmt: $('use-amounts').checked && cuota > 0,
+    cuota: cuota > 0 ? cuota : 0,
+    sym: $('symbol').value.trim() || '$',
+  };
+}
+function getNames() { return $('names').value.split('\n').map(s => s.trim()).filter(Boolean); }
+
+function monthLabel(m, y, offset) {
+  const t = m + offset;
+  return `${MESES[((t % 12) + 12) % 12]} ${y + Math.floor(t / 12)}`;
+}
+function money(n, sym) {
+  return sym + ' ' + n.toLocaleString('es', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+}
+function durText(n) {
+  if (n < 12) return `${n} mes${n === 1 ? '' : 'es'}`;
+  const y = Math.floor(n / 12), r = n % 12;
+  return `${y} año${y > 1 ? 's' : ''}${r ? ` y ${r} mes${r > 1 ? 'es' : ''}` : ''}`;
+}
+
+function refresh() {
+  const names = getNames(), n = names.length, c = getConfig();
+  $('title-display').textContent = c.group;
+  $('count').textContent = n;
+  $('amount-fields').hidden = !$('use-amounts').checked;
+
+  const pill = $('pill');
+  pill.className = 'pill';
+  if (n === 0)      { pill.textContent = 'Escribe al menos 2 nombres'; pill.classList.add('pill-neutral'); }
+  else if (n === 1) { pill.textContent = 'Falta al menos 1 nombre más'; pill.classList.add('pill-warn'); }
+  else              { pill.textContent = '¡Listo para sortear!'; pill.classList.add('pill-ok'); }
+  $('btn-spin').disabled = n < 2;
+
+  const dup = duplicates(names);
+  $('dup-warn').hidden = dup.length === 0;
+  if (dup.length) $('dup-warn').innerHTML = `<strong>Ojo: hay nombres repetidos</strong> (${dup.map(esc).join(', ')}). Cada línea cuenta como un turno. Si es a propósito porque esa persona tiene dos números, está bien; si no, borra la línea que sobra.`;
+
+  $('preview').hidden = n < 2;
+  if (n >= 2) {
+    $('pv-start').textContent = monthLabel(c.month, c.year, 0);
+    $('pv-end').textContent = monthLabel(c.month, c.year, n - 1);
+    $('pv-dur').textContent = durText(n);
+    $('pv-pot-box').hidden = !c.useAmt;
+    if (c.useAmt) $('pv-pot').textContent = money(c.cuota * n, c.sym);
+  }
+
+  save({ group: $('group-name').value, names: $('names').value, month: c.month, year: c.year,
+         useAmt: $('use-amounts').checked, cuota: $('cuota').value, sym: $('symbol').value });
+}
+
+// ── Fisher-Yates con aleatoriedad criptográfica ──
+// Entero al azar entre 0 y max-1, sin sesgo: descarta los valores que harían
+// más probables unos números que otros.
+function rand(max) {
+  const lim = Math.floor(0x100000000 / max) * max, buf = new Uint32Array(1);
+  do { crypto.getRandomValues(buf); } while (buf[0] >= lim);
+  return buf[0] % max;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+// Comprueba que el resultado tenga exactamente las mismas líneas que la lista original
+function sameEntries(a, b) {
+  if (a.length !== b.length) return false;
+  const x = [...a].sort(), y = [...b].sort();
+  return x.every((v, i) => v === y[i]);
+}
+// Nombres repetidos (sin importar mayúsculas, tildes ni espacios de más)
+function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim(); }
+function duplicates(names) {
+  const seen = new Map(), dup = [];
+  names.forEach(n => { const k = norm(n); if (seen.has(k) && !dup.includes(seen.get(k))) dup.push(seen.get(k)); else if (!seen.has(k)) seen.set(k, n); });
+  return dup;
+}
+
+// ── Ruleta con foquitos ──
+function drawWheel(canvas, names, angle, tick) {
+  const ctx = canvas.getContext('2d'), W = canvas.width, cx = W / 2;
+  const RIM = 34, R = W / 2 - RIM;
+  const slice = 2 * Math.PI / names.length;
+  ctx.clearRect(0, 0, W, W);
+
+  // Aro exterior
+  ctx.beginPath(); ctx.arc(cx, cx, W / 2 - 3, 0, 2 * Math.PI);
+  ctx.fillStyle = '#2b1640'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cx, W / 2 - 10, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffc93c'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cx, R + 4, 0, 2 * Math.PI);
+  ctx.fillStyle = '#2b1640'; ctx.fill();
+
+  // Foquitos
+  const bulbs = 24;
+  for (let b = 0; b < bulbs; b++) {
+    const a = b / bulbs * 2 * Math.PI, br = W / 2 - RIM / 2 - 5;
+    const on = (b + tick) % 2 === 0;
+    ctx.beginPath(); ctx.arc(cx + Math.cos(a) * br, cx + Math.sin(a) * br, 7, 0, 2 * Math.PI);
+    ctx.fillStyle = on ? '#ffffff' : '#ff8a3d';
+    ctx.shadowColor = on ? '#fff6c0' : 'transparent'; ctx.shadowBlur = on ? 14 : 0;
+    ctx.fill(); ctx.shadowBlur = 0;
+  }
+
+  // Gajos
+  names.forEach((name, i) => {
+    const a0 = angle + i * slice;
+    ctx.beginPath(); ctx.moveTo(cx, cx); ctx.arc(cx, cx, R, a0, a0 + slice); ctx.closePath();
+    let col = WHEEL[i % WHEEL.length];
+    if (names.length % WHEEL.length === 1 && i === names.length - 1) col = WHEEL[2]; // evita dos gajos iguales juntos
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = '#2b1640'; ctx.lineWidth = 3; ctx.stroke();
+
+    ctx.save(); ctx.translate(cx, cx); ctx.rotate(a0 + slice / 2);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    const dark = col === '#ffc93c' || col === '#8ccf3f';
+    ctx.fillStyle = dark ? '#2b1640' : '#ffffff';
+    ctx.font = `700 ${Math.max(13, Math.min(30, 320 / names.length))}px Fredoka, Nunito, system-ui, sans-serif`;
+    const label = name.length > 12 ? name.slice(0, 12) + '…' : name;
+    ctx.fillText(label, R - 16, 1);
+    ctx.restore();
+  });
+
+  // Centro: moneda
+  const g = ctx.createRadialGradient(cx - 14, cx - 14, 6, cx, cx, 56);
+  g.addColorStop(0, '#fff3b0'); g.addColorStop(.6, '#f2b200'); g.addColorStop(1, '#c98a00');
+  ctx.beginPath(); ctx.arc(cx, cx, 52, 0, 2 * Math.PI);
+  ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#2b1640'; ctx.stroke();
+  ctx.fillStyle = '#2b1640'; ctx.font = '700 48px Fredoka, system-ui, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', cx, cx + 3);
+}
+
+function spin() {
+  const names = getNames();
+  if (names.length < 2) return;
+  const cfg = getConfig();
+  const now = new Date();
+  const p = n => String(n).padStart(2, '0');
+  const seed = `CB-${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}-${rand(9000) + 1000}`;
+  const ts = now.toLocaleString('es', { dateStyle: 'full', timeStyle: 'short' });
+
+  $('setup').style.display = 'none';
+  $('stage').hidden = false;
+  $('stage').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+
+  const canvas = $('wheel');
+  const total = reduceMotion ? 700 : 3600;
+  const phases = [[0,'¡Girando!'],[1000,'Mezclando nombres…'],[2100,'Repartiendo los meses…'],[3000,'Casi, casi…']];
+  let angle = rand(360) * Math.PI / 180, speed = 0.28, start = performance.now(), last = start, phase = 0;
+  let shown = shuffle(names);
+
+  function frame(t) {
+    const elapsed = t - start, dt = Math.min(48, t - last) / 16.7; last = t;
+    if (total - elapsed < 1200) speed = Math.max(0.006, speed * Math.pow(0.955, dt));
+    angle += speed * dt;
+    if (elapsed < 2000 && Math.random() < 0.1) shown = shuffle(names);
+    drawWheel(canvas, shown, angle, Math.floor(elapsed / 140));
+
+    const slice = 2 * Math.PI / shown.length;
+    const rel = ((-Math.PI / 2 - angle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    $('spin-name').textContent = shown[Math.floor(rel / slice)] || '';
+
+    $('fill').style.width = Math.min(100, elapsed / total * 100) + '%';
+    while (phase < phases.length && elapsed >= phases[phase][0]) $('spin-status').textContent = phases[phase++][1];
+
+    if (elapsed < total) requestAnimationFrame(frame);
+    else {
+      $('spin-status').textContent = '¡Listo!';
+      setTimeout(() => {
+        const order = shuffle(names);
+        if (!sameEntries(order, names)) { toast('Algo salió mal. Vuelve a girar.'); $('modal-ok').click(); return; }
+        const result = { order, cfg, ts, seed };
+        save({ result });
+        showResults(result);
+        confetti();
+      }, reduceMotion ? 0 : 500);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+// ── Confeti ──
+function confetti() {
+  if (reduceMotion) return;
+  const c = $('confetti'), ctx = c.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+  const pieces = Array.from({ length: 160 }, () => ({
+    x: innerWidth / 2 + (Math.random() - .5) * 120, y: innerHeight * .35,
+    vx: (Math.random() - .5) * 14, vy: -Math.random() * 13 - 4,
+    w: 6 + Math.random() * 7, h: 8 + Math.random() * 8,
+    r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+    col: CONFETTI[Math.floor(Math.random() * CONFETTI.length)], round: Math.random() < .3,
+  }));
+  const end = performance.now() + 3200;
+  (function tick(t) {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    pieces.forEach(p => {
+      p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col;
+      if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, 2 * Math.PI); ctx.fill(); }
+      else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2)) + 2);
+      ctx.restore();
+    });
+    if (t < end) requestAnimationFrame(tick); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+  })(performance.now());
+}
+
+// ── Resultados ──
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+
+function showResults(r) {
+  const { order, cfg, ts, seed } = r, n = order.length;
+  const pot = cfg.cuota * n;
+  $('setup').style.display = 'none';
+  $('stage').hidden = true;
+  $('results').hidden = false;
+
+  $('res-title').textContent = cfg.group;
+  $('res-date').textContent = `Sorteo realizado el ${ts}`;
+
+  const stats = [
+    ['Participantes', n],
+    ['Periodo', `${monthLabel(cfg.month, cfg.year, 0)} – ${monthLabel(cfg.month, cfg.year, n - 1)}`],
+  ];
+  if (cfg.useAmt) {
+    stats.push(['Cuota mensual', money(cfg.cuota, cfg.sym)]);
+    stats.push(['Recibe cada turno', money(pot, cfg.sym)]);
+  } else {
+    stats.push(['Duración', durText(n)]);
+  }
+  $('res-summary').innerHTML = stats.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('');
+
+  $('res-thead').innerHTML = `<th>Turno</th><th>Mes</th><th>Recibe</th>${cfg.useAmt ? '<th class="amt">Monto</th>' : ''}`;
+  $('res-body').innerHTML = order.map((name, i) => `
+    <tr style="animation-delay:${i * 60}ms">
+      <td class="turn"><span class="num">${i + 1}</span></td>
+      <td class="mes">${monthLabel(cfg.month, cfg.year, i)}</td>
+      <td class="name">${esc(name)}${i === 0 ? '<span class="first-badge">Primero</span>' : ''}</td>
+      ${cfg.useAmt ? `<td class="amt">${money(pot, cfg.sym)}</td>` : ''}
+    </tr>`).join('');
+
+  $('res-note').innerHTML = `
+    <span>Cada nombre de la lista aparece una sola vez y cada mes tiene a alguien asignado. El orden se decidió con el generador de números aleatorios seguro del navegador, así que cada sorteo es independiente y no sigue ningún patrón ni depende del sorteo anterior.</span>
+    ${cfg.useAmt ? `<span>Cada mes todos aportan <strong>${money(cfg.cuota, cfg.sym)}</strong> y quien tiene el turno recibe <strong>${money(pot, cfg.sym)}</strong>. Al final, cada persona habrá aportado lo mismo que recibió.</span>` : ''}
+    <span>Código del sorteo: <code>${esc(seed)}</code></span>`;
+
+  const text = shareText(r);
+  $('share-text').value = text;
+  $('btn-wa').href = 'https://wa.me/?text=' + encodeURIComponent(text);
+  $('share-box').hidden = true;
+
+  requestAnimationFrame(() => $('results').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }));
+}
+
+function shareText({ order, cfg, ts, seed }) {
+  const n = order.length, pot = cfg.cuota * n;
+  let t = `*${cfg.group}*\nSorteo: ${ts}\n`;
+  if (cfg.useAmt) t += `Cuota mensual: ${money(cfg.cuota, cfg.sym)} · Cada turno recibe: ${money(pot, cfg.sym)}\n`;
+  t += `\n`;
+  order.forEach((name, i) => { t += `${i + 1}. ${monthLabel(cfg.month, cfg.year, i)} – ${name}\n`; });
+  t += `\nCódigo: ${seed}`;
+  return t;
+}
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── Eventos ──
+['group-name','names','start-month','start-year','use-amounts','cuota','symbol'].forEach(id => $(id).addEventListener('input', refresh));
+$('use-amounts').addEventListener('change', refresh);
+$('btn-spin').addEventListener('click', spin);
+$('load-example').addEventListener('click', () => {
+  $('names').value = ['Ana','Carlos','María','José','Sofía','Luis','Carmen','Jorge','Elena','Roberto'].join('\n');
+  refresh(); toast('Nombres de ejemplo cargados. Cámbialos por los reales.');
+});
+$('btn-copy').addEventListener('click', () => {
+  const text = $('share-text').value;
+  const fallback = () => { $('share-box').hidden = false; $('share-text').focus(); $('share-text').select(); toast('Selecciona el texto y cópialo'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast('¡Resultados copiados!'), fallback);
+  else fallback();
+});
+$('btn-new').addEventListener('click', () => { $('modal').hidden = false; $('modal-ok').focus(); });
+$('modal-cancel').addEventListener('click', () => { $('modal').hidden = true; });
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) $('modal').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('modal').hidden = true; });
+$('modal-ok').addEventListener('click', () => {
+  $('modal').hidden = true;
+  save({ result: null });
+  $('results').hidden = true;
+  $('setup').style.display = 'flex';
+  $('fill').style.width = '0';
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+});
+// Imprimir solo funciona si se abre el archivo directamente (no dentro de un visor)
+try { if (window.self === window.top) { $('btn-print').hidden = false; $('btn-print').addEventListener('click', () => window.print()); } } catch {}
+
+// ── Inicio ──
+(function init() {
+  $('nojs-warn').hidden = true;
+  $('bunting').innerHTML = '<i></i>'.repeat(22);
+  const s = load(), today = new Date();
+  const nextM = (today.getMonth() + 1) % 12, nextY = today.getFullYear() + (today.getMonth() === 11 ? 1 : 0);
+  // Quita el nombre fijo de la versión anterior
+  $('group-name').value = (s.group && s.group !== 'Cuchubal Familiar') ? s.group : '';
+  $('names').value = s.names ?? '';
+  $('start-month').value = String(s.month ?? nextM);
+  $('start-year').value = s.year ?? nextY;
+  $('use-amounts').checked = !!s.useAmt;
+  $('cuota').value = s.cuota ?? '';
+  $('symbol').value = s.sym ?? '$';
+  refresh();
+  if (s.result && s.result.order) showResults(s.result);
+})();
+</script>
+</body>
+</html>
